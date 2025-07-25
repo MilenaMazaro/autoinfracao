@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import jsPDF from "jspdf";
+import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import Image from "next/image";
 
 interface Formulario {
@@ -12,6 +12,10 @@ interface Formulario {
   classificacao: string;
   descricao: string;
   assinatura: string;
+  emitidoPor?: string;
+  cargo?: string;
+  data?: string;
+  assinaturaAgente?: string;
 }
 
 export default function VisualizarFormulario() {
@@ -37,14 +41,9 @@ export default function VisualizarFormulario() {
     const pdf = new jsPDF("p", "mm", "a4");
 
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
     const imgProps = pdf.getImageProperties(imgData);
     const imgWidth = pageWidth;
     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-    // Se a imagem for maior que a página em altura, pode cortar
-    // Você pode ajustar aqui para dividir em páginas, se quiser.
 
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
     pdf.save(`auto_infracao_${id}.pdf`);
@@ -69,7 +68,7 @@ export default function VisualizarFormulario() {
         <p>
           <strong>Descrição:</strong> {formulario.descricao}
         </p>
-        <div>
+        <div className="my-4">
           <strong>Assinatura:</strong>
           <br />
           <Image
@@ -77,9 +76,34 @@ export default function VisualizarFormulario() {
             alt="Assinatura"
             width={200}
             height={100}
-            priority={true}
+            priority
           />
         </div>
+
+        {/* Seção adicional do agente */}
+        <hr className="my-4" />
+        <p>
+          <strong>Emitido por:</strong> {formulario.emitidoPor || "---"}
+        </p>
+        <p>
+          <strong>Cargo:</strong> {formulario.cargo || "---"}
+        </p>
+        <p>
+          <strong>Data:</strong> {formulario.data || "---"}
+        </p>
+        {formulario.assinaturaAgente && (
+          <div className="mt-2">
+            <strong>Assinatura do agente:</strong>
+            <br />
+            <Image
+              src={formulario.assinaturaAgente}
+              alt="Assinatura do Agente"
+              width={200}
+              height={100}
+              priority
+            />
+          </div>
+        )}
       </div>
 
       <button
